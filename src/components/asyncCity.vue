@@ -104,12 +104,22 @@
         </div>
       </div>
     </div>
+
+    <div
+      class="flex items-center gap-2 py-12 text-white cursor-pointer duration-150 hover:text-red-500"
+      @click="removeCity"
+    >
+      <!-- v-show="checkExistingCity" -->
+      <i class="fa fa-trash" aria-hidden="true"></i>
+      <p>Remove City</p>
+    </div>
   </div>
 </template>
 
 <script setup>
 import axios from "axios";
-import { useRoute } from "vue-router";
+import { computed } from "vue";
+import { useRoute, useRouter } from "vue-router";
 
 const route = useRoute();
 const apiToken = "bc400e4d42b9949a519fb464e378002d";
@@ -117,7 +127,7 @@ const apiToken = "bc400e4d42b9949a519fb464e378002d";
 const getWeatherData = async () => {
   try {
     const weatherData = await axios.get(
-      `https://api.openweathermap.org/data/2.5/onecall?lat=${route.query.lat}&lon=${route.query.lng}&exclude={part}&appid=7efa332cf48aeb9d2d391a51027f1a71&units=imperial`
+      `https://api.openweathermap.org/data/2.5/onecall?lat=${route.query.lat}&lon=${route.query.lng}&exclude={part}&appid=7efa332cf48aeb9d2d391a51027f1a71&units=metric`
     );
 
     console.log("weather data", weatherData);
@@ -141,7 +151,27 @@ const getWeatherData = async () => {
 };
 
 const weatherData = await getWeatherData();
-console.log("++", weatherData);
+
+const router = useRouter();
+const removeCity = () => {
+  const cities = JSON.parse(localStorage.getItem("savedCities"));
+  const updatedCities = cities.filter((city) => city.id !== route.query.id);
+  localStorage.setItem("savedCities", JSON.stringify(updatedCities));
+  router.push({
+    name: "home",
+  });
+};
+
+const checkExistingCity = computed(() => {
+  JSON.parse(localStorage.getItem("savedCities")).filter((item) => {
+    if (item.id == route.query.id) {
+      console.log("Aya", item.id == route.query.id);
+      return true;
+    }
+    // return item.id == route.query.id;
+  });
+  // return
+});
 </script>
 
 <style lang="scss" scoped></style>
